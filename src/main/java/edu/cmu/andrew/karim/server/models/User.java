@@ -4,19 +4,53 @@ package edu.cmu.andrew.karim.server.models;
 public class User {
 
     String id = null;
-    String username = null;
+    String firstname = null;
+    String lastname = null;
     String password = null;
     String email = null;
-    Integer riderBalance;
+    String groupId = null;
+    Integer zipcode = null;
+    String address = null;
+    public User(){
 
-
-
-    public User(String id, String username, String password, String email, Integer riderBalance) {
+    }
+    public User(String id, String firstname,String lastname, String password, String email, String groupId,Integer zipcode,String address) {
         this.id = id;
-        this.username = username;
+        this.firstname = firstname;
+        this.lastname = lastname;
         this.password = password;
         this.email = email;
-        this.riderBalance = riderBalance;
+        this.groupId = groupId;
+        this.zipcode = zipcode;
+        this.address = address;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public void setZipcode(Integer zipcode) {
+        this.zipcode = zipcode;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public void setId(String id){ this.id = id; }
@@ -29,11 +63,18 @@ public class User {
         return email;
     }
 
-    public String getUsername() {
-        return username;
+    public String getFirstname() {
+        return firstname;
     }
 
     public String getPassword() { return password; }
 
-    public Integer getRiderBalance() { return riderBalance;}
+    public String getLastname() { return lastname;}
+
+    public Integer getZipcode() { return zipcode;}
+
+    public String  getAddress() { return address;}
+
+    public String  getGroupId() { return groupId;}
+
 }

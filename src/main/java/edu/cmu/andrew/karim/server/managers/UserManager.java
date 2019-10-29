@@ -42,9 +42,13 @@ public class UserManager extends Manager {
             JSONObject json = new JSONObject(user);
 
             Document newDoc = new Document()
-                    .append("username", user.getUsername())
+                    .append("firstname", user.getFirstname())
+                    .append("lastname", user.getLastname())
                     .append("password", user.getPassword())
-                    .append("email",user.getEmail()).append("riderBalance",user.getRiderBalance());
+                    .append("email",user.getEmail())
+                    .append("groupId",user.getGroupId())
+                    .append("zipcode", user.getZipcode())
+                    .append("address", user.getAddress());
             if (newDoc != null)
                 userCollection.insertOne(newDoc);
             else
@@ -58,13 +62,15 @@ public class UserManager extends Manager {
 
     public void updateUser( User user) throws AppException {
         try {
-
-
             Bson filter = new Document("_id", new ObjectId(user.getId()));
             Bson newValue = new Document()
-                    .append("username", user.getUsername())
+                    .append("firstname", user.getFirstname())
+                    .append("lastname", user.getLastname())
                     .append("password", user.getPassword())
-                    .append("email",user.getEmail()).append("riderBalance",user.getRiderBalance());
+                    .append("email",user.getEmail())
+                    .append("groupId",user.getGroupId())
+                    .append("zipcode", user.getZipcode())
+                    .append("address", user.getAddress());
             Bson updateOperationDocument = new Document("$set", newValue);
 
             if (newValue != null)
@@ -91,13 +97,15 @@ public class UserManager extends Manager {
             ArrayList<User> userList = new ArrayList<>();
             FindIterable<Document> userDocs = userCollection.find();
             for(Document userDoc: userDocs) {
-                User user = new User(
-                        userDoc.getObjectId("_id").toString(),
-                        userDoc.getString("username"),
-                        userDoc.getString("password"),
-                        userDoc.getString("email"),
-                        userDoc.getInteger("riderBalance")
-                        );
+                User user = new User();
+                user.setId(userDoc.getObjectId("_id").toString());
+                user.setFirstname(userDoc.getString("firstname"));
+                user.setLastname(userDoc.getString("lastname"));
+                user.setEmail( userDoc.getString("email"));
+                user.setGroupId( userDoc.getString("groupId"));
+                user.setPassword(userDoc.getString("password"));
+                user.setZipcode(userDoc.getInteger("zipcode"));
+                user.setAddress(userDoc.getString("address"));
                 userList.add(user);
             }
             return new ArrayList<>(userList);
@@ -113,13 +121,15 @@ public class UserManager extends Manager {
             sortParams.put(sortby, 1);
             FindIterable<Document> userDocs = userCollection.find().sort(sortParams);
             for(Document userDoc: userDocs) {
-                User user = new User(
-                        userDoc.getObjectId("_id").toString(),
-                        userDoc.getString("username"),
-                        userDoc.getString("password"),
-                        userDoc.getString("email"),
-                        userDoc.getInteger("riderBalance")
-                );
+                User user = new User();
+                user.setId(userDoc.getObjectId("_id").toString());
+                user.setFirstname(userDoc.getString("firstname"));
+                user.setLastname(userDoc.getString("lastname"));
+                user.setEmail( userDoc.getString("email"));
+                user.setGroupId( userDoc.getString("groupId"));
+                user.setPassword(userDoc.getString("password"));
+                user.setZipcode(userDoc.getInteger("zipcode"));
+                user.setAddress(userDoc.getString("address"));
                 userList.add(user);
             }
             return new ArrayList<>(userList);
@@ -132,16 +142,18 @@ public class UserManager extends Manager {
         try{
             ArrayList<User> userList = new ArrayList<>();
             BasicDBObject sortParams = new BasicDBObject();
-            sortParams.put("riderBalance", 1);
+            sortParams.put("firstname", 1);
             FindIterable<Document> userDocs = userCollection.find().sort(sortParams).skip(offset).limit(count);
             for(Document userDoc: userDocs) {
-                User user = new User(
-                        userDoc.getObjectId("_id").toString(),
-                        userDoc.getString("username"),
-                        userDoc.getString("password"),
-                        userDoc.getString("email"),
-                        userDoc.getInteger("riderBalance")
-                );
+                User user = new User();
+                user.setId(userDoc.getObjectId("_id").toString());
+                user.setFirstname(userDoc.getString("firstname"));
+                user.setLastname(userDoc.getString("lastname"));
+                user.setEmail( userDoc.getString("email"));
+                user.setGroupId( userDoc.getString("groupId"));
+                user.setPassword(userDoc.getString("password"));
+                user.setZipcode(userDoc.getInteger("zipcode"));
+                user.setAddress(userDoc.getString("address"));
                 userList.add(user);
             }
             return new ArrayList<>(userList);
@@ -156,13 +168,15 @@ public class UserManager extends Manager {
             FindIterable<Document> userDocs = userCollection.find();
             for(Document userDoc: userDocs) {
                 if(userDoc.getObjectId("_id").toString().equals(id)) {
-                    User user = new User(
-                            userDoc.getObjectId("_id").toString(),
-                            userDoc.getString("username"),
-                            userDoc.getString("password"),
-                            userDoc.getString("email"),
-                            userDoc.getInteger("riderBalance")
-                    );
+                    User user = new User();
+                    user.setId(userDoc.getObjectId("_id").toString());
+                    user.setFirstname(userDoc.getString("firstname"));
+                    user.setLastname(userDoc.getString("lastname"));
+                    user.setEmail( userDoc.getString("email"));
+                    user.setGroupId( userDoc.getString("groupId"));
+                    user.setPassword(userDoc.getString("password"));
+                    user.setZipcode(userDoc.getInteger("zipcode"));
+                    user.setAddress(userDoc.getString("address"));
                     userList.add(user);
                 }
             }
@@ -170,6 +184,31 @@ public class UserManager extends Manager {
         } catch(Exception e){
             throw handleException("Get User List", e);
         }
+
+    }
+    public ArrayList<User> getUserListFiltered(String groupId) throws AppException {
+        try{
+            ArrayList<User> userList = new ArrayList<>();
+            FindIterable<Document> userDocs = userCollection.find();
+            for(Document userDoc: userDocs) {
+                if(userDoc.getString("groupId").equals(groupId)) {
+                    User user = new User();
+                    user.setId(userDoc.getObjectId("_id").toString());
+                    user.setFirstname(userDoc.getString("firstname"));
+                    user.setLastname(userDoc.getString("lastname"));
+                    user.setEmail( userDoc.getString("email"));
+                    user.setGroupId( userDoc.getString("groupId"));
+                    user.setPassword(userDoc.getString("password"));
+                    user.setZipcode(userDoc.getInteger("zipcode"));
+                    user.setAddress(userDoc.getString("address"));
+                    userList.add(user);
+                }
+            }
+            return new ArrayList<>(userList);
+        } catch(Exception e){
+            throw handleException("Get User List", e);
+        }
+
     }
 
 

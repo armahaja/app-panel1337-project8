@@ -39,14 +39,16 @@ public class UserHttpInterface extends HttpInterface{
             JSONObject json = null;
             json = new JSONObject(ow.writeValueAsString(request));
 
-            User newuser = new User(
-                    null,
-                    json.getString("username"),
-                    json.getString("password"),
-                    json.getString("email"),
-                    json.getInt("riderBalance")
-            );
-            UserManager.getInstance().createUser(newuser);
+            User user = new User();
+            user.setId(null);
+            user.setFirstname(json.getString("firstname"));
+            user.setLastname(json.getString("lastname"));
+            user.setEmail( json.getString("email"));
+            user.setGroupId( json.getString("groupId"));
+            user.setPassword(json.getString("password"));
+            user.setZipcode(json.getInt("zipcode"));
+            user.setAddress(json.getString("address"));
+            UserManager.getInstance().createUser(user);
             return new AppResponse("Insert Successful");
 
         }catch (Exception e){
@@ -55,12 +57,13 @@ public class UserHttpInterface extends HttpInterface{
 
     }
 
-    //Sorting: http://localhost:8080/api/users?sortby=riderBalance
-    //Pagination: http://localhost:8080/api/users?offset=1&count=2
+    //Sorting: http://localhost:8080/users?sortby=firstname
+    //Pagination: http://localhost:8080/users?offset=1&count=2
+    //Filtering: http://localhost:8080/users?groupId=94086
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     public AppResponse getUsers(@Context HttpHeaders headers, @QueryParam("sortby") String sortby, @QueryParam("offset") Integer offset,
-                                @QueryParam("count") Integer count){
+                                @QueryParam("count") Integer count,@QueryParam("groupid") String groupId){
         try{
             AppLogger.info("Got an API call");
             ArrayList<User> users = null;
@@ -69,6 +72,9 @@ public class UserHttpInterface extends HttpInterface{
                 users = UserManager.getInstance().getUserListSorted(sortby);
             else if(offset != null && count != null)
                 users = UserManager.getInstance().getUserListPaginated(offset, count);
+            else if(groupId != null)
+                users = UserManager.getInstance().getUserListFiltered(groupId);
+
             else
                 users = UserManager.getInstance().getUserList();
 
@@ -81,25 +87,6 @@ public class UserHttpInterface extends HttpInterface{
         }
     }
 
-
-    /*
-  //http://server.com/api/users?begin=11&count=10
-    @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    public AppResponse getUsersPaginated(@Context HttpHeaders headers){
-
-        try{
-            AppLogger.info("Got an API call");
-            ArrayList<User> users = UserManager.getInstance().getUserList();
-
-            if(users != null)
-                return new AppResponse(users);
-            else
-                throw new HttpBadRequestException(0, "Problem with getting users");
-        }catch (Exception e){
-            throw handleException("GET /users", e);
-        }
-    }*/
 
     @GET
     @Path("/{userId}")
@@ -134,10 +121,13 @@ public class UserHttpInterface extends HttpInterface{
             json = new JSONObject(ow.writeValueAsString(request));
             User user = new User(
                     userId,
-                    json.getString("username"),
+                    json.getString("firstname"),
+                    json.getString("lastname"),
                     json.getString("password"),
                     json.getString("email"),
-                    json.getInt("riderBalance")
+                    json.getString("groupId"),
+                    json.getInt("zipcode"),
+                    json.getString("address")
             );
 
             UserManager.getInstance().updateUser(user);
@@ -167,5 +157,33 @@ public class UserHttpInterface extends HttpInterface{
 
     }
 
+    @POST
+    @Path("/reset")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    public AppResponse addDummyUsers(){
+
+        try{
+            JSONObject json = null;
+            for(int i =0;i<10;i++) {
+                String groupId = i<5?"group1":"group2";
+                Integer zipcode = i<5?94086: 94482;
+                User user = new User();
+                user.setId(null);
+                user.setFirstname("user"+i);
+                user.setLastname("dummy"+i);
+                user.setEmail("user"+i+"@outlook.com");
+                user.setGroupId(groupId);
+                user.setPassword("user"+i+"123");
+                user.setZipcode(zipcode);
+                user.setAddress("dummy address for user"+i);
+                UserManager.getInstance().createUser(user);
+            }
+            return new AppResponse("Insert Successful");
+        }catch (Exception e){
+            throw handleException("POST users", e);
+        }
+
+    }
 
 }
