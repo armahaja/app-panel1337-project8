@@ -44,7 +44,7 @@ public class UserManager extends Manager {
             Document newDoc = new Document()
                     .append("username", user.getUsername())
                     .append("password", user.getPassword())
-                    .append("email",user.getEmail()).append("riderBalance",user.getRiderBalance());
+                    .append("email",user.getEmail());
             if (newDoc != null)
                 userCollection.insertOne(newDoc);
             else
@@ -64,7 +64,7 @@ public class UserManager extends Manager {
             Bson newValue = new Document()
                     .append("username", user.getUsername())
                     .append("password", user.getPassword())
-                    .append("email",user.getEmail()).append("riderBalance",user.getRiderBalance());
+                    .append("email",user.getEmail());
             Bson updateOperationDocument = new Document("$set", newValue);
 
             if (newValue != null)
@@ -95,8 +95,7 @@ public class UserManager extends Manager {
                         userDoc.getObjectId("_id").toString(),
                         userDoc.getString("username"),
                         userDoc.getString("password"),
-                        userDoc.getString("email"),
-                        userDoc.getInteger("riderBalance")
+                        userDoc.getString("email")
                         );
                 userList.add(user);
             }
@@ -117,8 +116,7 @@ public class UserManager extends Manager {
                         userDoc.getObjectId("_id").toString(),
                         userDoc.getString("username"),
                         userDoc.getString("password"),
-                        userDoc.getString("email"),
-                        userDoc.getInteger("riderBalance")
+                        userDoc.getString("email")
                 );
                 userList.add(user);
             }
@@ -139,8 +137,7 @@ public class UserManager extends Manager {
                         userDoc.getObjectId("_id").toString(),
                         userDoc.getString("username"),
                         userDoc.getString("password"),
-                        userDoc.getString("email"),
-                        userDoc.getInteger("riderBalance")
+                        userDoc.getString("email")
                 );
                 userList.add(user);
             }
@@ -160,8 +157,7 @@ public class UserManager extends Manager {
                             userDoc.getObjectId("_id").toString(),
                             userDoc.getString("username"),
                             userDoc.getString("password"),
-                            userDoc.getString("email"),
-                            userDoc.getInteger("riderBalance")
+                            userDoc.getString("email")
                     );
                     userList.add(user);
                 }

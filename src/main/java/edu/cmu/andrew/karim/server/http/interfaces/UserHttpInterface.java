@@ -43,8 +43,7 @@ public class UserHttpInterface extends HttpInterface{
                     null,
                     json.getString("username"),
                     json.getString("password"),
-                    json.getString("email"),
-                    json.getInt("riderBalance")
+                    json.getString("email")
             );
             UserManager.getInstance().createUser(newuser);
             return new AppResponse("Insert Successful");
@@ -136,8 +135,7 @@ public class UserHttpInterface extends HttpInterface{
                     userId,
                     json.getString("username"),
                     json.getString("password"),
-                    json.getString("email"),
-                    json.getInt("riderBalance")
+                    json.getString("email")
             );
 
             UserManager.getInstance().updateUser(user);
@@ -159,7 +157,7 @@ public class UserHttpInterface extends HttpInterface{
     public AppResponse deleteUsers(@PathParam("userId") String userId){
 
         try{
-            UserManager.getInstance().deleteUser( userId);
+            UserManager.getInstance().deleteUser(userId);
             return new AppResponse("Delete Successful");
         }catch (Exception e){
             throw handleException("DELETE users/{userId}", e);
