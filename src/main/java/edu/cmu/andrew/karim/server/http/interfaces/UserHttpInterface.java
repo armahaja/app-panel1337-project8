@@ -95,7 +95,7 @@ public class UserHttpInterface extends HttpInterface{
 
         try{
             AppLogger.info("Got an API call");
-            ArrayList<User> users = UserManager.getInstance().getUserById(userId);
+            ArrayList<User> users = UserManager.getInstance().getUserById(headers,userId);
 
             if(users != null)
                 return new AppResponse(users);
@@ -113,7 +113,7 @@ public class UserHttpInterface extends HttpInterface{
     @Path("/{userId}")
     @Consumes({ MediaType.APPLICATION_JSON})
     @Produces({ MediaType.APPLICATION_JSON})
-    public AppResponse patchUsers(Object request, @PathParam("userId") String userId){
+    public AppResponse patchUsers(@Context HttpHeaders headers,Object request, @PathParam("userId") String userId){
 
         JSONObject json = null;
 
@@ -130,7 +130,7 @@ public class UserHttpInterface extends HttpInterface{
                     json.getString("address")
             );
 
-            UserManager.getInstance().updateUser(user);
+            UserManager.getInstance().updateUser(headers,user);
 
         }catch (Exception e){
             throw handleException("PATCH users/{userId}", e);

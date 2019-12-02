@@ -31,14 +31,14 @@ public class LectureHttpInterface  extends HttpInterface {
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public AppResponse postLecture(Object request) {
+    public AppResponse postLecture(@Context HttpHeaders headers,Object request) {
         try {
             JSONObject json = null;
             json = new JSONObject(ow.writeValueAsString(request));
             Lecture lecture = new Lecture(json.getString("lectureName"),json.getString("groupId"),json.getString("userId"),
                     json.getString("lectureDescription"),json.getString("eventId"),Boolean.parseBoolean(json.getString("lectureApproved")),
                     Integer.parseInt(json.getString("lectureVotes")),Integer.parseInt(json.getString("duration")),json.getString("lectureId"));
-            LectureManager.getInstance().createLecture(lecture);
+            LectureManager.getInstance().createLecture(headers,lecture);
             return new AppResponse("Insert Successful");
 
         } catch (Exception e) {
@@ -133,7 +133,7 @@ public class LectureHttpInterface  extends HttpInterface {
     @Path("/{lectureId}")
     @Consumes({ MediaType.APPLICATION_JSON})
     @Produces({ MediaType.APPLICATION_JSON})
-    public AppResponse patchLectures(Object request, @PathParam("lectureId") String lectureId){
+    public AppResponse patchLectures(@Context HttpHeaders headers,Object request, @PathParam("lectureId") String lectureId){
 
         JSONObject json = null;
 
@@ -142,7 +142,7 @@ public class LectureHttpInterface  extends HttpInterface {
             Lecture lecture = new Lecture(json.getString("lectureName"),json.getString("groupId"),json.getString("userId"),
                     json.getString("lectureDescription"),json.getString("eventId"),Boolean.parseBoolean(json.getString("lectureApproved")),
                     Integer.parseInt(json.getString("lectureVotes")),Integer.parseInt(json.getString("duration")),lectureId);
-            LectureManager.getInstance().updateLecture(lecture);
+            LectureManager.getInstance().updateLecture(headers,lecture,lecture.getUserId());
 
         }catch (Exception e){
             throw handleException("PATCH lectures/{lectureId}", e);
@@ -151,11 +151,11 @@ public class LectureHttpInterface  extends HttpInterface {
         return new AppResponse("Lecture Update Successful");
     }
     @POST
-    @Path("/addVotes/{lectureId}")
+    @Path("/addVotes/{lectureId}/userId/{userId}")
     @Produces({MediaType.APPLICATION_JSON})
-    public AppResponse addVotesToLecture(Object request,@PathParam("lectureId") String lectureId) {
+    public AppResponse addVotesToLecture(@Context HttpHeaders headers,Object request,@PathParam("lectureId") String lectureId,@PathParam("userId") String userId) {
         try {
-            LectureManager.getInstance().addVotesToLecture(lectureId);
+            LectureManager.getInstance().addVotesToLecture(headers,lectureId,userId);
             return new AppResponse("Success: Votes added ");
 
         } catch (Exception e) {
@@ -163,11 +163,11 @@ public class LectureHttpInterface  extends HttpInterface {
         }
     }
     @POST
-    @Path("/approve/{lectureId}/{approved}")
+    @Path("/approve/{lectureId}/{approved}/userId/{userId}")
     @Produces({MediaType.APPLICATION_JSON})
-    public AppResponse approveLecture(Object request,@PathParam("lectureId") String lectureId,@PathParam("approved") Boolean approved) {
+    public AppResponse approveLecture(@Context HttpHeaders headers,Object request,@PathParam("lectureId") String lectureId,@PathParam("approved") Boolean approved,@PathParam("userId") String userId) {
         try {
-            LectureManager.getInstance().approveLecture(lectureId,approved);
+            LectureManager.getInstance().approveLecture(headers,lectureId,approved,userId);
             return new AppResponse("Lecture updated ");
 
         } catch (Exception e) {

@@ -7,6 +7,8 @@ import com.mongodb.client.model.*;
 import com.mongodb.client.model.Sorts;
 import edu.cmu.andrew.karim.server.exceptions.AppException;
 import edu.cmu.andrew.karim.server.exceptions.AppInternalServerException;
+import edu.cmu.andrew.karim.server.exceptions.AppUnauthorizedException;
+import edu.cmu.andrew.karim.server.models.Session;
 import edu.cmu.andrew.karim.server.models.User;
 import edu.cmu.andrew.karim.server.utils.MongoPool;
 import edu.cmu.andrew.karim.server.utils.AppLogger;
@@ -16,6 +18,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
 
+import javax.ws.rs.core.HttpHeaders;
 import java.util.ArrayList;
 
 
@@ -33,8 +36,11 @@ public class FollowUserManager extends Manager {
             _self = new FollowUserManager();
         return _self;
     }
-    public void createFollower(String followerUserId,String followingUserId) throws AppException {
+    public void createFollower(HttpHeaders headers, String followerUserId, String followingUserId) throws AppException {
         try{
+            Session session = SessionManager.getInstance().getSessionForToken(headers);
+            if(!session.getUserId().equals(followerUserId))
+                throw new AppUnauthorizedException(70,"Invalid user id");
                Document newDoc = new Document()
                     .append("followerUserId", followerUserId)
                     .append("followingUserId", followingUserId);
@@ -48,8 +54,11 @@ public class FollowUserManager extends Manager {
         }
 
     }
-    public void deleteFollowingRelation(String followerUserId,String followingUserId) throws AppException {
+    public void deleteFollowingRelation(HttpHeaders headers,String followerUserId,String followingUserId) throws AppException {
         try {
+            Session session = SessionManager.getInstance().getSessionForToken(headers);
+            if(!session.getUserId().equals(followerUserId))
+                throw new AppUnauthorizedException(70,"Invalid user id");
             Bson filter = new Document()
                     .append("followerUserId", followerUserId)
                     .append("followingUserId", followingUserId);

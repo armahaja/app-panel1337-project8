@@ -7,6 +7,8 @@ import com.mongodb.client.model.*;
 import com.mongodb.client.model.Sorts;
 import edu.cmu.andrew.karim.server.exceptions.AppException;
 import edu.cmu.andrew.karim.server.exceptions.AppInternalServerException;
+import edu.cmu.andrew.karim.server.exceptions.AppUnauthorizedException;
+import edu.cmu.andrew.karim.server.models.Session;
 import edu.cmu.andrew.karim.server.models.User;
 import edu.cmu.andrew.karim.server.utils.MongoPool;
 import edu.cmu.andrew.karim.server.utils.AppLogger;
@@ -17,6 +19,7 @@ import org.bson.types.ObjectId;
 import org.json.JSONObject;
 
 
+import javax.ws.rs.core.HttpHeaders;
 import java.lang.String;
 import java.util.ArrayList;
 
@@ -60,8 +63,12 @@ public class UserManager extends Manager {
 
     }
 
-    public void updateUser( User user) throws AppException {
+    public void updateUser(HttpHeaders headers, User user) throws AppException {
         try {
+            Session session = SessionManager.getInstance().getSessionForToken(headers);
+            if(!session.getUserId().equals(user.getId()))
+                throw new AppUnauthorizedException(70,"Invalid user id");
+
             Bson filter = new Document("_id", new ObjectId(user.getId()));
             Bson newValue = new Document()
                     .append("firstname", user.getFirstname())
@@ -162,8 +169,12 @@ public class UserManager extends Manager {
         }
     }
 
-    public ArrayList<User> getUserById(String id) throws AppException {
+    public ArrayList<User> getUserById(HttpHeaders headers,String id) throws AppException {
         try{
+            Session session = SessionManager.getInstance().getSessionForToken(headers);
+            if(!session.getUserId().equals(id))
+                throw new AppUnauthorizedException(70,"Invalid user id");
+
             ArrayList<User> userList = new ArrayList<>();
             FindIterable<Document> userDocs = userCollection.find();
             for(Document userDoc: userDocs) {

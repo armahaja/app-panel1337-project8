@@ -30,7 +30,7 @@ public class CardHttpInterface extends HttpInterface {
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public AppResponse postCards(Object request){
+    public AppResponse postCards(@Context HttpHeaders headers,Object request){
 
         try{
             JSONObject json = null;
@@ -43,7 +43,7 @@ public class CardHttpInterface extends HttpInterface {
                     json.getString("expireDate")
 
             );
-            CardManager.getInstance().createCard(card);
+            CardManager.getInstance().createCard(headers,card);
             return new AppResponse("Insert Successful");
 
         }catch (Exception e){
@@ -63,7 +63,7 @@ public class CardHttpInterface extends HttpInterface {
 
             if(userId != null)
 
-                cards = CardManager.getInstance().getCardById(userId);
+                cards = CardManager.getInstance().getCardById(headers,userId);
 
             if(cards != null)
                 return new AppResponse(cards);
@@ -78,7 +78,7 @@ public class CardHttpInterface extends HttpInterface {
     @Path("/{userId}")
     @Consumes({ MediaType.APPLICATION_JSON})
     @Produces({ MediaType.APPLICATION_JSON})
-    public AppResponse patchCard(Object request, @PathParam("userId") String userId){
+    public AppResponse patchCard(@Context HttpHeaders headers,Object request, @PathParam("userId") String userId){
 
         JSONObject json = null;
 
@@ -91,7 +91,7 @@ public class CardHttpInterface extends HttpInterface {
                     json.getString("expireDate")
             );
 
-            CardManager.getInstance().updateCard(card);
+            CardManager.getInstance().updateCard(headers,card);
 
         }catch (Exception e){
             throw handleException("PATCH cards/{cardId}", e);

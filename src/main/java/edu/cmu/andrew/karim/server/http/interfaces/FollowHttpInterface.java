@@ -25,9 +25,9 @@ public class FollowHttpInterface  extends HttpInterface {
     @POST
     @Path("/{followerId}/{followingId}")
     @Produces({MediaType.APPLICATION_JSON})
-    public AppResponse followUser(Object request,@PathParam("followerId") String followerId,@PathParam("followingId") String followingId) {
+    public AppResponse followUser(@Context HttpHeaders headers,Object request,@PathParam("followerId") String followerId,@PathParam("followingId") String followingId) {
         try {
-            FollowUserManager.getInstance().createFollower(followerId,followingId);
+            FollowUserManager.getInstance().createFollower(headers,followerId,followingId);
             return new AppResponse("User Followed ");
 
         } catch (Exception e) {
@@ -37,9 +37,9 @@ public class FollowHttpInterface  extends HttpInterface {
     @DELETE
     @Path("/{followerId}/{followingId}")
     @Produces({MediaType.APPLICATION_JSON})
-    public AppResponse unfollowUser(Object request,@PathParam("followerId") String followerId,@PathParam("followingId") String followingId) {
+    public AppResponse unfollowUser(@Context HttpHeaders headers,Object request,@PathParam("followerId") String followerId,@PathParam("followingId") String followingId) {
         try {
-            FollowUserManager.getInstance().deleteFollowingRelation(followerId,followingId);
+            FollowUserManager.getInstance().deleteFollowingRelation(headers,followerId,followingId);
             return new AppResponse("User UnFollowed ");
 
         } catch (Exception e) {
