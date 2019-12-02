@@ -4,13 +4,16 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import edu.cmu.andrew.karim.server.exceptions.AppException;
 import edu.cmu.andrew.karim.server.exceptions.AppInternalServerException;
+import edu.cmu.andrew.karim.server.exceptions.AppUnauthorizedException;
 import edu.cmu.andrew.karim.server.models.Card;
+import edu.cmu.andrew.karim.server.models.Session;
 import edu.cmu.andrew.karim.server.utils.MongoPool;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
 
+import javax.ws.rs.core.HttpHeaders;
 import java.util.ArrayList;
 
 public class CardManager extends Manager {
@@ -28,9 +31,12 @@ public class CardManager extends Manager {
         return _self;
     }
 
-    public void createCard(Card card) throws AppException {
+    public void createCard(HttpHeaders headers,Card card) throws AppException {
 
         try{
+            Session session = SessionManager.getInstance().getSessionForToken(headers);
+            if(!session.getUserId().equals(card.getUserID()))
+                throw new AppUnauthorizedException(70,"Invalid user id");
             JSONObject json = new JSONObject(card);
 
             Document newDoc = new Document()
@@ -49,10 +55,12 @@ public class CardManager extends Manager {
 
     }
 
-    public void updateCard(Card card) throws AppException {
+    public void updateCard(HttpHeaders headers,Card card) throws AppException {
         try {
 
-
+            Session session = SessionManager.getInstance().getSessionForToken(headers);
+            if(!session.getUserId().equals(card.getUserID()))
+                throw new AppUnauthorizedException(70,"Invalid user id");
             Bson filter = new Document("cardNumber", card.getCardNumbers());
             Bson newValue = new Document()
                     .append("cardNumber", card.getCardNumbers())
@@ -82,8 +90,11 @@ public class CardManager extends Manager {
     }
 
 
-    public ArrayList<Card> getCardById(String id) throws AppException {
+    public ArrayList<Card> getCardById(HttpHeaders headers,String id) throws AppException {
         try{
+            Session session = SessionManager.getInstance().getSessionForToken(headers);
+            if(!session.getUserId().equals(id))
+                throw new AppUnauthorizedException(70,"Invalid user id");
             ArrayList<Card> cardList = new ArrayList<>();
             FindIterable<Document> cardDocs = cardCollection.find();
             for(Document cardDoc: cardDocs) {

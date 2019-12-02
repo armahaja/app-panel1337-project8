@@ -7,7 +7,9 @@ import com.mongodb.client.model.*;
 import com.mongodb.client.model.Sorts;
 import edu.cmu.andrew.karim.server.exceptions.AppException;
 import edu.cmu.andrew.karim.server.exceptions.AppInternalServerException;
+import edu.cmu.andrew.karim.server.exceptions.AppUnauthorizedException;
 import edu.cmu.andrew.karim.server.models.Lecture;
+import edu.cmu.andrew.karim.server.models.Session;
 import edu.cmu.andrew.karim.server.models.User;
 import edu.cmu.andrew.karim.server.utils.MongoPool;
 import edu.cmu.andrew.karim.server.utils.AppLogger;
@@ -17,6 +19,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
 
+import javax.ws.rs.core.HttpHeaders;
 import java.util.ArrayList;
 
 
@@ -34,29 +37,30 @@ public class LectureManager extends Manager{
             _self = new LectureManager();
         return _self;
     }
-    public void addVotesToLecture(String lectureId) throws AppException {
+    public void addVotesToLecture(HttpHeaders headers,String lectureId,String userId) throws AppException {
         try {
             Lecture lecture = this.getLectureByLectureId(lectureId);
             lecture.setLectureVotes(lecture.getLectureVotes()+1);
-            updateLecture(lecture);
+            updateLecture(headers,lecture,userId);
         } catch(Exception e) {
             throw handleException("Add Votes error ", e);
         }
     }
-    public void approveLecture(String lectureId,Boolean approved) throws AppException {
+    public void approveLecture(HttpHeaders headers,String lectureId,Boolean approved,String userId) throws AppException {
         try {
             Lecture lecture = this.getLectureByLectureId(lectureId);
             lecture.setLectureApproved(approved);
-            updateLecture(lecture);
+            updateLecture(headers,lecture,userId);
         } catch(Exception e) {
             throw handleException("Approve Lecture Error ", e);
         }
     }
-    public void createLecture(Lecture lecture) throws AppException {
-
+    public void createLecture(HttpHeaders headers, Lecture lecture) throws AppException {
         try{
+            Session session = SessionManager.getInstance().getSessionForToken(headers);
+            if(!session.getUserId().equals(lecture.getUserId()))
+                throw new AppUnauthorizedException(70,"Invalid user id");
             JSONObject json = new JSONObject(lecture);
-
             Document newDoc = new Document()
                     .append("eventId", lecture.getEvenId())
                     .append("groupId", lecture.getGroupId())
@@ -76,8 +80,11 @@ public class LectureManager extends Manager{
             throw handleException("Create Lecture", e);
         }
     }
-    public void updateLecture( Lecture lecture) throws AppException {
+    public void updateLecture(HttpHeaders headers, Lecture lecture,String userId) throws AppException {
         try {
+            Session session = SessionManager.getInstance().getSessionForToken(headers);
+            if(!session.getUserId().equals(userId))
+                throw new AppUnauthorizedException(70,"Invalid user id");
             Bson filter = new Document("lectureId", lecture.getLectureId());
             Bson newValue = new Document()
                     .append("eventId", lecture.getEvenId())
